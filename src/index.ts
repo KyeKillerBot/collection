@@ -44,8 +44,8 @@ class Collection<K, V> extends Map<K, V> {
 	 * @param {*} key - The key to get from this collection
 	 * @returns {* | undefined}
 	 */
-	public get(key: K): V | undefined {
-		return super.get(key);
+	public get<T extends V>(key: K): T | undefined {
+		return <T>super.get(key);
 	}
 
 	/**
@@ -99,9 +99,9 @@ class Collection<K, V> extends Map<K, V> {
 	 * `Array.from(collection.values())` instead.
 	 * @returns {Array}
 	 */
-	public array(): V[] {
+	public array<T extends V>(): T[] {
 		if (this._array?.length !== this.size) this._array = [...this.values()];
-		return this._array;
+		return <T[]>this._array;
 	}
 
 	/**
@@ -122,14 +122,14 @@ class Collection<K, V> extends Map<K, V> {
 	 * @returns {*|Array<*>} A single value if no amount is provided or an array of values, starting from the end if
 	 * amount is negative
 	 */
-	public first(): V | undefined;
-	public first(amount: number): V[];
-	public first(amount?: number): V | V[] | undefined {
+	public first<T extends V>(): T | undefined;
+	public first<T extends V>(amount: number): T[];
+	public first<T extends V>(amount?: number): T | T[] | undefined {
 		if (typeof amount === 'undefined') return this.values().next().value;
-		if (amount < 0) return this.last(amount * -1);
+		if (amount < 0) return this.last<T>(amount * -1);
 		amount = Math.min(this.size, amount);
 		const iter = this.values();
-		return Array.from({ length: amount }, (): V => iter.next().value);
+		return Array.from({ length: amount }, (): T => iter.next().value);
 	}
 
 	/**
@@ -155,10 +155,10 @@ class Collection<K, V> extends Map<K, V> {
 	 * @returns {*|Array<*>} A single value if no amount is provided or an array of values, starting from the start if
 	 * amount is negative
 	 */
-	public last(): V | undefined;
-	public last(amount: number): V[];
-	public last(amount?: number): V | V[] | undefined {
-		const arr = this.array();
+	public last<T extends V>(): T | undefined;
+	public last<T extends V>(amount: number): T[];
+	public last<T extends V>(amount?: number): T | T[] | undefined {
+		const arr = this.array<T>();
 		if (typeof amount === 'undefined') return arr[arr.length - 1];
 		if (amount < 0) return this.first(amount * -1);
 		if (!amount) return [];
@@ -188,16 +188,16 @@ class Collection<K, V> extends Map<K, V> {
 	 * @param {number} [amount] Amount of values to obtain randomly
 	 * @returns {*|Array<*>} A single value if no amount is provided or an array of values
 	 */
-	public random(): V;
-	public random(amount: number): V[];
-	public random(amount?: number): V | V[] {
-		let arr = this.array();
+	public random<T extends V>(): T;
+	public random<T extends V>(amount: number): T[];
+	public random<T extends V>(amount?: number): T | T[] {
+		let arr = this.array<T>();
 		if (typeof amount === 'undefined') return arr[Math.floor(Math.random() * arr.length)];
 		if (!arr.length || !amount) return [];
 		arr = arr.slice();
 		return Array.from(
 			{ length: Math.min(amount, arr.length) },
-			(): V => arr.splice(Math.floor(Math.random() * arr.length), 1)[0],
+			(): T => arr.splice(Math.floor(Math.random() * arr.length), 1)[0],
 		);
 	}
 
@@ -233,10 +233,10 @@ class Collection<K, V> extends Map<K, V> {
 	 */
 	public find(fn: (value: V, key: K, collection: this) => boolean): V | undefined;
 	public find<T>(fn: (this: T, value: V, key: K, collection: this) => boolean, thisArg: T): V | undefined;
-	public find(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): V | undefined {
+	public find<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): T | undefined {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
-			if (fn(val, key, this)) return val;
+			if (fn(<T>val, key, this)) return <T>val;
 		}
 		return undefined;
 	}
@@ -390,10 +390,10 @@ class Collection<K, V> extends Map<K, V> {
 	 */
 	public some(fn: (value: V, key: K, collection: this) => boolean): boolean;
 	public some<T>(fn: (this: T, value: V, key: K, collection: this) => boolean, thisArg: T): boolean;
-	public some(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
+	public some<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
-			if (fn(val, key, this)) return true;
+			if (fn(<T>val, key, this)) return true;
 		}
 		return false;
 	}
@@ -408,10 +408,10 @@ class Collection<K, V> extends Map<K, V> {
 	 */
 	public every(fn: (value: V, key: K, collection: this) => boolean): boolean;
 	public every<T>(fn: (this: T, value: V, key: K, collection: this) => boolean, thisArg: T): boolean;
-	public every(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
+	public every<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
-			if (!fn(val, key, this)) return false;
+			if (!fn(<T>val, key, this)) return false;
 		}
 		return true;
 	}
