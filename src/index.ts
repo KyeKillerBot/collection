@@ -133,6 +133,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public find(fn: (value: V, key: K, collection: this) => boolean): V | undefined;
+	public find<T extends V>(fn: (this: T, value: T, key: K, collection: this) => boolean, thisArg?: T): T | undefined;
 	public find<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): T | undefined {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
@@ -142,6 +143,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public findKey(fn: (value: V, key: K, collection: this) => boolean): K | undefined;
+	public findKey<T extends V>(fn: (this: T, value: T, key: K, collection: this) => boolean, thisArg?: T): K | undefined;
 	public findKey(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): K | undefined {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
@@ -151,6 +153,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public sweep(fn: (value: V, key: K, collection: this) => boolean): number;
+	public sweep<T extends V>(fn: (this: T, value: T, key: K, collection: this) => boolean, thisArg?: T): number;
 	public sweep(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): number {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const previousSize = this.size;
@@ -161,6 +164,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public filter(fn: (value: V, key: K, collection: this) => boolean): this;
+	public filter<T extends V>(fn: (this: T, value: T, key: K, collection: this) => boolean, thisArg?: T): this;
 	public filter(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): this {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const results = new this.constructor[Symbol.species]<K, V>() as this;
@@ -171,6 +175,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public partition(fn: (value: V, key: K, collection: this) => boolean): [this, this];
+	public partition<T extends V>(fn: (this: T, value: T, key: K, collection: this) => boolean, thisArg?: T): [this, this];
 	public partition(fn: (value: V, key: K, collection: this) => boolean, thisArg?: unknown): [this, this] {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const results: [this, this] = [
@@ -188,14 +193,18 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public flatMap<T>(fn: (value: V, key: K, collection: this) => Collection<K, T>): Collection<K, T>;
+	public flatMap<T, This>(
+		fn: (this: This, value: V, key: K, collection: this) => Collection<K, T>,
+		thisArg?: This,
+	): Collection<K, T>;
 	public flatMap<T>(fn: (value: V, key: K, collection: this) => Collection<K, T>, thisArg?: unknown): Collection<K, T> {
 		const collections = this.map(fn, thisArg);
 		return (new this.constructor[Symbol.species]() as Collection<K, T>).concat(...collections);
 	}
 
-	public map<T>(fn: (value: V, key: K, collection: this) => T): T[];
+	public map<T extends V>(fn: (value: T, key: K, collection: this) => T): T[];
 	public map<This, T>(fn: (this: This, value: V, key: K, collection: this) => T, thisArg: This): T[];
-	public map<T>(fn: (value: V, key: K, collection: this) => T, thisArg?: unknown): T[] {
+	public map<T extends V>(fn: (value: T, key: K, collection: this) => T, thisArg?: unknown): T[] {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const iter = this.entries();
 		return Array.from(
@@ -208,6 +217,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public mapValues<T>(fn: (value: V, key: K, collection: this) => T): Collection<K, T>;
+	public mapValues<This, T>(fn: (this: This, value: V, key: K, collection: this) => T, thisArg?: This): Collection<K, T>;
 	public mapValues<T>(fn: (value: V, key: K, collection: this) => T, thisArg?: unknown): Collection<K, T> {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const coll = new this.constructor[Symbol.species]() as Collection<K, T>;
@@ -216,6 +226,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public some(fn: (value: V, key: K, collection: this) => boolean): boolean;
+	public some<T>(fn: (this: T, value: V, key: K, collection: this) => boolean, thisArg?: T): boolean;
 	public some<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
@@ -225,6 +236,7 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public every(fn: (value: V, key: K, collection: this) => boolean): boolean;
+	public every<T>(fn: (this: T, value: V, key: K, collection: this) => boolean, thisArg?: T): boolean;
 	public every<T extends V>(fn: (value: T, key: K, collection: this) => boolean, thisArg?: unknown): boolean {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		for (const [key, val] of this) {
@@ -260,12 +272,14 @@ class Collection<K, V> extends Map<K, V> {
 	}
 
 	public each(fn: (value: V, key: K, collection: this) => void): this;
+	public each<T>(fn: (this: T, value: V, key: K, collection: this) => void, thisArg?: T): this;
 	public each(fn: (value: V, key: K, collection: this) => void, thisArg?: unknown): this {
 		this.forEach(fn as (value: V, key: K, map: Map<K, V>) => void, thisArg);
 		return this;
 	}
 
 	public tap(fn: (collection: this) => void): this;
+	public tap<T>(fn: (this: T, collection: this) => void, thisArg?: T): this;
 	public tap(fn: (collection: this) => void, thisArg?: unknown): this {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		fn(this);
