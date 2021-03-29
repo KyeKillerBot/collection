@@ -1,7 +1,7 @@
 {
 	"name": "@kyekillerbot/collection",
 	"version": "0.0.2",
-	"description": "Utility data structure used in Discord.js",
+	"description": "Utility data structure used with KyeKillerBot",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
