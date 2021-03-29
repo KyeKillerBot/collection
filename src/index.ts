@@ -202,14 +202,14 @@ class Collection<K, V> extends Map<K, V> {
 		return (new this.constructor[Symbol.species]() as Collection<K, T>).concat(...collections);
 	}
 
-	public map<T extends V>(fn: (value: T, key: K, collection: this) => T): T[];
+	public map<T extends V, R = T>(fn: (value: T, key: K, collection: this) => R): R[];
 	public map<This, T>(fn: (this: This, value: V, key: K, collection: this) => T, thisArg: This): T[];
-	public map<T extends V>(fn: (value: T, key: K, collection: this) => T, thisArg?: unknown): T[] {
+	public map<T extends V, R = T>(fn: (value: T, key: K, collection: this) => R, thisArg?: unknown): R[] {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const iter = this.entries();
 		return Array.from(
 			{ length: this.size },
-			(): T => {
+			(): any => {
 				const [key, value] = iter.next().value;
 				return fn(value, key, this);
 			},
